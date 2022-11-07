@@ -94,3 +94,37 @@ ws.createServer((conn) => {
         })
     })
 }).listen(8001)
+const http = require('http');
+
+const hostname = '127.0.0.1';
+const port = 3000;
+
+const server = http.createServer((req, res) => {
+    // 发送消息
+    req.on('data',(data)=>{
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        let requestData = JSON.parse(data.toString());
+        if(typeof connections[requestData.connectionId] !== "object"){
+            res.end(JSON.stringify({"status":"链接不存在"}));
+            return;
+        }
+        if(connections[requestData.connectionId].channel.spec.channelKey!==requestData.channelKey){
+            res.end(JSON.stringify({"status":"通道秘钥错误"}));
+            return;
+        }
+        if(req.url==='/sendMessage'){
+            connections[requestData.connectionId].conn.sendText(requestData.body);
+            res.end(JSON.stringify({"status":"Success"}));
+        }else if(req.url==='/closeConnection'){
+            // 关闭连接
+            connections[requestData.connectionId].conn.close();
+            connections[requestData.connectionId] = undefined;
+            res.end(JSON.stringify({"status":"Success"}));
+        }
+    })
+});
+
+server.listen(port, hostname, () => {
+    console.log(`Server running at http://${hostname}:${port}/`);
+});

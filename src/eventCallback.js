@@ -17,7 +17,6 @@ module.exports = class eventCallback {
                     "content-type": "application/json"
                 }
             };
-            console.log(url)
             const http = require('http');
             let client = http.request(options,function(res){
                 var data = '';
