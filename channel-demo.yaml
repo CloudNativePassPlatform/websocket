@@ -1,0 +1,22 @@
+apiVersion: service.manager/v1
+kind: WebStocketChannel
+metadata:
+  name: demo
+  namespace: huoxingqianli-php-group
+spec:
+  channelKey: "7982798319129837892739812"
+  event:
+    onOpen:
+      - url: http://192.168.33.2:7001/onOpen
+        timeout: 30
+        method: POST
+    onMessage:
+      - url: http://192.168.33.2:7001/onMessage
+        timeout: 30
+        method: POST
+    onClose:
+      - url: http://192.168.33.2:7001/onClose
+        timeout: 30
+        method: POST
+status:
+  status: runing

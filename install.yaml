@@ -1,0 +1,149 @@
+# Channel CustomResourceDefinition
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: webstocket-channel.service.manager
+spec:
+  group: service.manager
+  scope: Namespaced
+  names:
+    kind: WebStocketChannel
+    plural: webstocket-channel
+    shortNames:
+      - "wsc"
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                # 通道秘钥
+                channelKey:
+                  type: string
+                  default:
+                # 事件
+                event:
+                  type: object
+                  properties:
+                    onOpen:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          # URl
+                          url:
+                            type: string
+                          # 超时时间
+                          timeout:
+                            type: integer
+                            default: 30
+                          # 请求方式
+                          method:
+                            type: string
+                            default: POST
+                    onMessage:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          # URl
+                          url:
+                            type: string
+                          # 超时时间
+                          timeout:
+                            type: integer
+                            default: 30
+                          # 请求方式
+                          method:
+                            type: string
+                            default: POST
+                    onClose:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          # URl
+                          url:
+                            type: string
+                          # 超时时间
+                          timeout:
+                            type: integer
+                            default: 30
+                          # 请求方式
+                          method:
+                            type: string
+                            default: POST
+            status:
+              type: object
+              properties:
+                # 状态
+                status:
+                  type: string
+                  default: padding
+      additionalPrinterColumns:
+        - name: 状态
+          type: string
+          description: 任务状态
+          jsonPath: ".status.status"
+---
+# 连接信息存储
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: webstocket-connection.service.manager
+spec:
+  group: service.manager
+  scope: Namespaced
+  names:
+    kind: WebStocketConnection
+    plural: webstocket-connection
+    shortNames:
+      - "wscnn"
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                # 节点
+                node:
+                  type: string
+                  default:
+                # 连接句柄
+                fd:
+                  type: integer
+                  default: 0
+                # 通道
+                channel:
+                  type: string
+                  default:
+                # 连接URI
+                uri:
+                  type: string
+                  default:
+                # 连接来源
+                origin:
+                  type: string
+                  default:
+            status:
+              type: object
+              properties:
+                # 状态
+                status:
+                  type: string
+                  default: padding
+      additionalPrinterColumns:
+        - name: 状态
+          type: string
+          description: 任务状态
+          jsonPath: ".status.status"
