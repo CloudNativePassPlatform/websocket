@@ -10,7 +10,6 @@ var getKubeAPi = () => {
     return new KubeApi('kube-api.huoxingqianli.cn',6443,token);
 }
 let connections = {};
-console.log("Server Started");
 ws.createServer((conn) => {
     let connectionId = random(32);
     connections[connectionId] = {
@@ -93,11 +92,10 @@ ws.createServer((conn) => {
             namespace:namespace
         })
     })
-}).listen(8001)
+}).listen(8001,'0.0.0.0',() => {
+    console.log(`WebSocket Server running at http://127.0.0.1:8001/`);
+})
 const http = require('http');
-
-const hostname = '127.0.0.1';
-const port = 3000;
 
 const server = http.createServer((req, res) => {
     // 发送消息
@@ -125,6 +123,6 @@ const server = http.createServer((req, res) => {
     })
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+server.listen(3000, '0.0.0.0', () => {
+    console.log(`Message Server running at http://127.0.0.1:3000/`);
 });
