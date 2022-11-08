@@ -17,16 +17,20 @@ module.exports = class eventCallback {
                     "content-type": "application/json"
                 }
             };
+            console.log(`<----------开始通知----------->`)
+            console.log(options)
             const http = require('http');
             let client = http.request(options,function(res){
-                var data = '';
+                var response = '';
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
-                    data += chunk;
+                    response += chunk;
                 });
                 res.on('end', function () {
-                    console.log('回调完成')
+                    console.log(`<----------请求数据----------->`)
                     console.log(data)
+                    console.log(`<----------响应数据----------->`)
+                    console.log(response)
                 });
                 res.on('error',function(error){
                     console.log(error);
@@ -34,6 +38,10 @@ module.exports = class eventCallback {
             })
             client.write(JSON.stringify(data));
             client.end();
+            client.on('error',(e)=>{
+                console.log(`<-----------回调失败:${e.message}----------->`)
+                console.log(data)
+            })
         });
     }
 }
