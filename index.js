@@ -10,27 +10,32 @@ var getKubeAPi = () => {
     return new KubeApi('kube-api.huoxingqianli.cn',6443,token);
 }
 let connections = {};
+
+
 ws.createServer(async (conn) => {
-    let connectionId = ''
-    do{
-        connectionId = random(16,{
-            numeric:true,
-            letters:false,
-            special:false,
-        });
-    }while (typeof connections[connectionId] != 'undefined');
-    connections[connectionId] = {
-        conn: conn,
-        connectionId: connectionId,
-        origin:conn.headers.origin,
-        "user-agent":conn.headers["user-agent"],
-    };
     let regex = /\/(.*)\/(.*)\/(.*)\/(.*)/;
     let route = conn.path.match(regex);
     let workspace = route[1] // workspace;
     let namespace = route[2] // namespace;
     let channelName = route[3] // channelName;
     let ConnectionKey = route[4] // ConnectionKey;
+    let connectionId = ''
+    let connectionIdRand;
+    do{
+        connectionId = random(16,{
+            numeric:true,
+            letters:false,
+            special:false,
+        });
+        connectionIdRand = JSON.parse(await getKubeAPi().request(`/apis/service.manager/v1/namespaces/${workspace}-${namespace}/websocket-connection/${workspace}-${namespace}-${channelName}-${connectionId}`));
+    }while (typeof connections[connectionId] != 'undefined' || connectionIdRand.code!=404);
+    connections[connectionId] = {
+        conn: conn,
+        connectionId: connectionId,
+        origin:conn.headers.origin,
+        "user-agent":conn.headers["user-agent"],
+    };
+
     // 检查企业空间
     let workspace_res = JSON.parse(await getKubeAPi().request(`/apis/service.manager/v1/workspace/${workspace}`));
     if(workspace_res.code===404){
