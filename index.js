@@ -11,7 +11,11 @@ var getKubeAPi = () => {
 }
 let connections = {};
 ws.createServer((conn) => {
-    let connectionId = random(32);
+
+    let connectionId = ''
+    do{
+        connectionId = random(32);
+    }while (typeof connections[connectionId] != 'undefined');
     connections[connectionId] = {
         conn: conn,
         connectionId: connectionId,
