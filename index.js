@@ -10,11 +10,14 @@ var getKubeAPi = () => {
     return new KubeApi('kube-api.huoxingqianli.cn',6443,token);
 }
 let connections = {};
-ws.createServer((conn) => {
-
+ws.createServer(async (conn) => {
     let connectionId = ''
     do{
-        connectionId = random(32);
+        connectionId = random(16,{
+            numeric:true,
+            letters:false,
+            special:false,
+        });
     }while (typeof connections[connectionId] != 'undefined');
     connections[connectionId] = {
         conn: conn,
@@ -29,48 +32,61 @@ ws.createServer((conn) => {
     let channelName = route[3] // channelName;
     let ConnectionKey = route[4] // ConnectionKey;
     // 检查企业空间
-    getKubeAPi().request(`/apis/service.manager/v1/workspace/${workspace}`).then((workspace_res)=>{
-        if(JSON.parse(workspace_res).code===404){
-            console.warn(`工作空间:${workspace}不存在`)
-            conn.close();
-            return;
+    let workspace_res = JSON.parse(await getKubeAPi().request(`/apis/service.manager/v1/workspace/${workspace}`));
+    if(workspace_res.code===404){
+        console.warn(`工作空间:${workspace}不存在`)
+        conn.close();
+        return;
+    }
+    console.log(`工作空间:${workspace}存在`)
+    // 检查命名空间
+    let namespace_res = await getKubeAPi().request(`/apis/service.manager/v1/group/${namespace}`);
+    if(namespace_res.code===404){
+        console.warn(`命名空间:${workspace}不存在`)
+        conn.close();
+        return;
+    }
+    console.log(`命名空间:${workspace}存在`)
+    // 检查通道
+    let channel_res = JSON.parse(await getKubeAPi().request(`/apis/service.manager/v1/namespaces/${workspace}-${namespace}/webstocket-channel/${channelName}`));
+    if(channel_res.code===404){
+        console.warn(`通信通道:${channelName}不存在`)
+        conn.close();
+        return;
+    }
+    connections[connectionId].channel = channel_res;
+    console.log(`通信通道:${channelName}存在`)
+    console.log(`<---------开始创建连接信息----------->`)
+    var os = require("os")
+    let addConnection = await getKubeAPi().request(`/apis/service.manager/v1/namespaces/${workspace}-${namespace}/websocket-connection`,'POST',{
+        'Content-Type':'application/json'
+    },JSON.stringify({
+        'apiVersion':"service.manager/v1",
+        'kind':"WebSocketConnection",
+        'metadata':{
+            'name':`${workspace}-${namespace}-${channelName}-${connectionId}`,
+            'namespace':`${workspace}-${namespace}`
+        },
+        'spec':{
+            'node':os.hostname(),
+            'channel':channelName,
+            'uri':conn.path,
+            'origin':conn.headers.origin
         }
-        console.log(`工作空间:${workspace}存在`)
-        // 检查命名空间
-        getKubeAPi().request(`/apis/service.manager/v1/group/${namespace}`).then((namespace_res)=>{
-            if(JSON.parse(namespace_res).code===404){
-                console.warn(`命名空间:${workspace}不存在`)
-                conn.close();
-                return;
-            }
-            console.log(`命名空间:${workspace}存在`)
-            // 检查通道
-            getKubeAPi().request(`/apis/service.manager/v1/namespaces/${workspace}-${namespace}/webstocket-channel/${channelName}`).then((channel_res)=>{
-                if(JSON.parse(channel_res).code===404){
-                    console.warn(`通信通道:${channelName}不存在`)
-                    conn.close();
-                    return;
-                }
-                connections[connectionId].channel = JSON.parse(channel_res);
-                console.log(`通信通道:${channelName}存在`)
-                new eventCallback().send(JSON.parse(channel_res).spec.event.onOpen,{
-                    event:'onOpen',
-                    ConnectionKey:ConnectionKey,
-                    channelName:channelName,
-                    connectionId:connectionId,
-                    origin:conn.headers.origin,
-                    "user-agent":conn.headers["user-agent"],
-                    workspace:workspace,
-                    namespace:namespace,
-                })
-                // console.log(JSON.parse(channel_res).spec.event);
-            })
-        })
+    }))
+    new eventCallback().send(connections[connectionId].channel.spec.event.onOpen,{
+        event:'onOpen',
+        ConnectionKey:ConnectionKey,
+        channelName:channelName,
+        connectionId:connectionId,
+        origin:conn.headers.origin,
+        "user-agent":conn.headers["user-agent"],
+        workspace:workspace,
+        namespace:namespace,
     })
     console.log(`<---------新建连接:${connectionId}--------->`)
     conn.on("text", function (str) {
         console.log(`<-----------接收数据:${str}-------->`)
-        // console.log(str);
         new eventCallback().send(connections[connectionId].channel.spec.event.onMessage,{
             event:'onMessage',
             ConnectionKey:ConnectionKey,

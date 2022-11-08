@@ -73,7 +73,7 @@ module.exports = class KubeApi {
         }
         return def;
     }
-    request(api,method='GET',headers={}) {
+    request(api,method='GET',headers={},body='') {
         const options = {
             hostname: this.host,
             port: this.port,
@@ -83,12 +83,13 @@ module.exports = class KubeApi {
                 // 'Content-Length': 0,
                 'authorization': `Bearer ${this.token}`
             },headers),
+            timeout:30,
             method:method,
             rejectUnauthorized: false
         };
         return new Promise((resolve, reject) => {
             const http = require('https');
-            http.get(options, (res) => {
+            let client = http.request(options, (res) => {
                 var data = '';
                 res.setEncoding('utf8');
                 res.on('data', function (chunk) {
@@ -101,6 +102,14 @@ module.exports = class KubeApi {
                     reject(error)
                 });
             });
+            if(method!=='GET'){
+                client.write(body);
+            }
+            client.end();
+            client.on('error',(e)=>{
+                console.log(`<-----------KubeApi请求失败:${e.message}----------->`)
+                console.log(e)
+            })
         })
     }
 }
