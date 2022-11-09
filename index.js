@@ -167,7 +167,7 @@ const server = http.createServer((req, res) => {
         /**
          * 发布任务
          */
-        getKubeAPi().request(`/apis/service.manager/v1/websocket-connection-task`, 'POST', {
+        getKubeAPi().request(`/apis/service.manager/v1/namespaces/${ConnectionInfo.metadata.namespace}/websocket-connection-task`, 'POST', {
             'Context-Type': 'application/json'
         }, JSON.stringify({
             apiVersion: "service.manager/v1",
@@ -178,7 +178,7 @@ const server = http.createServer((req, res) => {
                     letters: false,
                     special: false,
                 }),
-                namespace: `${workspace}-${namespace}`,
+                namespace: ConnectionInfo.metadata.namespace,
                 labels: {
                     node: ConnectionInfo.spec.node
                 }
@@ -217,6 +217,8 @@ setInterval(async () => {
             connections[taskItem.spec.connectionId].conn.close();
             connections[taskItem.spec.connectionId] = undefined;
         }
+    }else{
+        console.log('<-------------连接信息错误----------->')
     }
     await getKubeAPi().request(`/apis/service.manager/v1/namespaces/${taskItem.metadata.namespace}/websocket-connection-task/${taskItem.metadata.name}`, 'DELETE')
 }, 1000)
