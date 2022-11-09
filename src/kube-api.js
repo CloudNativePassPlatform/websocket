@@ -102,7 +102,7 @@ module.exports = class KubeApi {
                     reject(error)
                 });
             });
-            if(method!=='GET'){
+            if(method!=='GET' && body.length>=1){
                 client.write(body);
             }
             client.end();

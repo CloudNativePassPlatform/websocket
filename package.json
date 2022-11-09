@@ -3,6 +3,7 @@
     "http": "^0.0.1-security",
     "https": "^1.0.0",
     "nodejs-websocket": "^1.7.2",
+    "querystring": "^0.2.1",
     "string-random": "^0.1.3"
   }
 }

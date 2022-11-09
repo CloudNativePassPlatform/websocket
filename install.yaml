@@ -143,3 +143,56 @@ spec:
           type: string
           description: 任务状态
           jsonPath: ".status.status"
+---
+# 连接任务
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: websocket-connection-task.service.manager
+spec:
+  group: service.manager
+  scope: Namespaced
+  names:
+    kind: WebSocketConnectionTask
+    plural: websocket-connection-task
+    shortNames:
+      - "wscnt"
+  versions:
+    - name: v1
+      served: true
+      storage: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              properties:
+                # 节点
+                node:
+                  type: string
+                  default:
+                # 连接ID
+                connectionId:
+                  type: string
+                  default:
+                # 任务类型
+                task:
+                  type: string
+                  default: sendMessage
+                # 任务内容
+                body:
+                  type: string
+                  default:
+            status:
+              type: object
+              properties:
+                # 状态
+                status:
+                  type: string
+                  default: padding
+      additionalPrinterColumns:
+        - name: 状态
+          type: string
+          description: 任务状态
+          jsonPath: ".status.status"

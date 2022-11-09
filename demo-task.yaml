@@ -1,0 +1,14 @@
+apiVersion: service.manager/v1
+kind: WebSocketConnectionTask
+metadata:
+  name: send-message-demo
+  namespace: huoxingqianli-php-group
+  labels:
+    node: bogon
+spec:
+  node: bogon
+  connectionId: "12312323232"
+  task: sendMessage
+  body: 你好啊这里是任务投递消息
+status:
+  status: runing
