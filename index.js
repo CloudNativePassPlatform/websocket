@@ -109,7 +109,7 @@ ws.createServer(async (conn) => {
             body: str
         })
     })
-    conn.on("close", function (code, reason) {
+    conn.on("close", async function (code, reason) {
         console.log(`<---------连接关闭:${connectionId}---------->`)
         new eventCallback().send(connections[connectionId].channel.spec.event.onClose, {
             event: 'onClose',
@@ -121,6 +121,7 @@ ws.createServer(async (conn) => {
             workspace: workspace,
             namespace: namespace
         })
+        getKubeAPi().request(`/apis/service.manager/v1/namespaces/${workspace}-${namespace}/websocket-connection/${connectionId}`,'DELETE')
     })
 }).listen(8001, '0.0.0.0', () => {
     console.log(`WebSocket Server running at http://127.0.0.1:8001/`);
