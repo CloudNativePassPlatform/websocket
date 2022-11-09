@@ -136,15 +136,6 @@ const server = http.createServer((req, res) => {
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
         let requestData = JSON.parse(data.toString());
-
-        if (typeof connections[requestData.connectionId] !== "object") {
-            res.end(JSON.stringify({"status": "链接不存在"}));
-            return;
-        }
-        if (connections[requestData.connectionId].channel.spec.channelKey !== requestData.channelKey) {
-            res.end(JSON.stringify({"status": "通道秘钥错误"}));
-            return;
-        }
         let action = '';
         let body = '';
         if (req.url === '/sendMessage') {
@@ -159,9 +150,18 @@ const server = http.createServer((req, res) => {
         });
         let result = JSON.parse(await getKubeAPi().request(`/apis/service.manager/v1/websocket-connection?labelSelector=${query}&limit=1`))
         if (result.items.length <= 0) {
+            res.end(JSON.stringify({"status": "链接不存在"}));
             return;
         }
         let [ConnectionInfo] = result.items;
+
+        let ChannelInfo = JSON.parse(await getKubeAPi().request(`/apis/service.manager/v1/namespaces/${ConnectionInfo.metadata.namespace}/webstocket-channel/${ConnectionInfo.spec.channel}`))
+        console.log(ChannelInfo)
+        if (ChannelInfo.spec.channelKey !== requestData.channelKey) {
+            res.end(JSON.stringify({"status": "通道秘钥错误"}));
+            return;
+        }
+
         console.log(`<---------------发布任务------------------>`)
         console.log(ConnectionInfo)
         /**
