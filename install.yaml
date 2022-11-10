@@ -1,3 +1,42 @@
+# NameSpace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: system-websocket
+---
+# ServiceAccessSecret
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    kubernetes.io/service-account.name: websocket
+  name: websocket-secret
+  namespace: system-websocket
+type: kubernetes.io/service-account-token
+---
+# ServiceAccount
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: websocket
+  namespace: system-websocket
+secrets:
+  - name: websocket-secret
+---
+# ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: websocket
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - kind: ServiceAccount
+    name: websocket
+    namespace: system-websocket
+---
 # Channel CustomResourceDefinition
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
@@ -196,3 +235,35 @@ spec:
           type: string
           description: 任务状态
           jsonPath: ".status.status"
+---
+# Websocket Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websocket
+  namespace: system-websocket
+  labels:
+    app: websocket
+spec:
+  selector:
+    matchLabels:
+      app: websocket
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: websocket
+    spec:
+      volumes:
+        - name: websocket-secret-volume
+          secret:
+            secretName: websocket-secret
+      containers:
+        - name: websocket-container
+          image: registry.cn-hangzhou.aliyuncs.com/huoxingqianli/websocket:v0.0.1
+          #          image: nginx:alpine
+          volumeMounts:
+            - mountPath: /etc/token
+              name: pipeline-secret-volume
+              readOnly: true
+              subPath: token
