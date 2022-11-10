@@ -267,3 +267,26 @@ spec:
               name: pipeline-secret-volume
               readOnly: true
               subPath: token
+# 服务暴露
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-websocket-svc
+  namespace: system-websocket
+  labels:
+    app: websocket
+spec:
+  selector:
+    app: websocket
+  # 访问方式 ClusterIP NodePort LoadBalancer
+  type: ClusterIP
+  ports:
+    - name: ws-8001
+      protocol: TCP
+      port: 8001
+      targetPort: 8001
+    - name: api-3000
+      protocol: TCP
+      port: 3000
+      targetPort: 3000

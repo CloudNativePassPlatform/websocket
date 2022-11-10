@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+  name: websocket-ingress-ws
+  namespace: system-websocket
+spec:
+  rules:
+    - host: socket.huoxingqianli.cn
+      http:
+        paths:
+          - backend:
+              serviceName: service-websocket-svc
+              servicePort: 8001
+            path: /
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+  name: websocket-ingress-api
+  namespace: system-websocket
+spec:
+  rules:
+    - host: socket-api.huoxingqianli.cn
+      http:
+        paths:
+          - backend:
+              serviceName: service-websocket-svc
+              servicePort: 3000
+            path: /
