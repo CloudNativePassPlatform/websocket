@@ -4,12 +4,11 @@ var eventCallback = require("./src/eventCallback");
 var ws = require("nodejs-websocket")
 const random = require('string-random');
 const querystring = require('querystring');
-
 var os = require("os")
 let hostname = os.hostname();
 var getKubeAPi = () => {
-    let token = "eyJhbGciOiJSUzI1NiIsImtpZCI6IklJUHdpWFZIWTZVWHl6ZVRYRGJiYjdMb2Z2bVFMcGdfb0RiMHB1SjVleWcifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJzeXN0ZW0tZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJzZXJ2aWNlLW1hbmFnZXItc2VjcmV0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZXJ2aWNlLWFjY291bnQubmFtZSI6InNlcnZpY2UtbWFuYWdlciIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImZmOWUxYTMwLWE5MmItNDk5ZC05MDk0LTE4MjNjYTZhMGE0OCIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpzeXN0ZW0tZGVmYXVsdDpzZXJ2aWNlLW1hbmFnZXIifQ.h00SOOev0RhRvhsXmvev9Q4f_eNxndLxl3nb6ZMiOzHBJEQyTQBuz5gX5k5KbfMLd58B1x_P3yJ1QYSWbyn2_E3zkXzx8r_is2Sae1_lHzAHPFD294TJkbNKCNSNMdOFPtMpN8CFhY1xVSr3bw65QGJiA7z-ZQW7F_hAu41PLWdQRkY-87-89wqYc_PG1WFhp3JYAgW9-QnSjha253JWK1SrCuq1cWIU4CXe194bXVBH-TjiKV3w4v-q0W2dgnFEma-UmjWQ7nifgE8cIV5ayieZ4NYbCRsqAfOarXclPgUpOS1oacZWu0bCbdM4UghQyS2hYI61f7zYzuXCXnPxuw";
-    return new KubeApi('kube-api.huoxingqianli.cn', 6443, token);
+    const fs = require('fs');
+    return new KubeApi('kubernetes.default.svc', 443, fs.readFileSync('/etc/token').toString());
 }
 let connections = {};
 ws.createServer(async (conn) => {
