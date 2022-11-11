@@ -1,2 +1,0 @@
-#!/usr/bin/env node
-var http = require("http");          #引入http模块
