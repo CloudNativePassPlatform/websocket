@@ -260,11 +260,14 @@ spec:
             secretName: websocket-secret
       containers:
         - name: websocket-container
-          image: registry.cn-hangzhou.aliyuncs.com/huoxingqianli/websocket:v0.0.1
+          image: registry.cn-hangzhou.aliyuncs.com/huoxingqianli/websocket:v0.0.2
           #          image: nginx:alpine
+#          command:
+#            - "sleep"
+#            - "999999"
           volumeMounts:
             - mountPath: /etc/token
-              name: pipeline-secret-volume
+              name: websocket-secret-volume
               readOnly: true
               subPath: token
 # 服务暴露
