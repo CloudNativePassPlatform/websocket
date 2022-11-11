@@ -7,6 +7,16 @@
 > 负责 `sendMessage` `closeConnection` 相关连接信息处理
 >
 
+#### 组件安装
+```bash
+kubectl apply -f https://raw.githubusercontent.com/CloudNativePassPlatform/websocket/master/install.yaml
+```
+
+#### 路由配置
+```bash
+kubectl apply -f https://raw.githubusercontent.com/CloudNativePassPlatform/websocket/master/ingress.yaml
+```
+
 #### 连接地址
 > 
 > 格 [ws|wss]://ingress-host/workspace/namespace/channelName/ConnectionKey
