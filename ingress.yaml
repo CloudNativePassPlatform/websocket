@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -7,16 +7,20 @@ metadata:
   name: websocket-ingress-ws
   namespace: system-websocket
 spec:
+  ingressClassName: nginx
   rules:
     - host: socket.huoxingqianli.cn
       http:
         paths:
           - backend:
-              serviceName: service-websocket-svc
-              servicePort: 8001
+              service:
+                name: service-websocket-svc
+                port:
+                  number: 8001
             path: /
+            pathType: Prefix
 ---
-apiVersion: extensions/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   annotations:
@@ -25,11 +29,15 @@ metadata:
   name: websocket-ingress-api
   namespace: system-websocket
 spec:
+  ingressClassName: nginx
   rules:
     - host: socket-api.huoxingqianli.cn
       http:
         paths:
           - backend:
-              serviceName: service-websocket-svc
-              servicePort: 3000
+              service:
+                name: service-websocket-svc
+                port:
+                  number: 3000
             path: /
+            pathType: Prefix
